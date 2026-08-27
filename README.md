@@ -1,6 +1,8 @@
 # CredBridge Protocol
 
 > **Portable, Privacy-Preserving Reputation for Underbanked Workers on Stellar & Soroban**
+>
+> *Stellar Journey to Mastery Level 4 Submission by Rise In*
 
 [![Stellar Network](https://img.shields.io/badge/Stellar-Testnet-blue?style=flat-square&logo=stellar)](https://stellar.org)
 [![Soroban Smart Contracts](https://img.shields.io/badge/Soroban-Rust-orange?style=flat-square&logo=rust)](https://soroban.stellar.org)
@@ -9,24 +11,56 @@
 
 ---
 
-## 👤 Author & Maintainer
+## 📌 Submission Summary & Submission Links
 
-- **Sole Author & Lead Engineer:** **Shashank Shinde** ([@shashankpatilsggs-hub](https://github.com/shashankpatilsggs-hub))
-- **Repository:** [https://github.com/shashankpatilsggs-hub/credbridge](https://github.com/shashankpatilsggs-hub/credbridge)
+> [!IMPORTANT]
+> **Manual Submission Links & Artifacts (User Managed):**
+
+- **🌐 Live Vercel Deployment URL:** `[INSERT_YOUR_VERCEL_DEPLOYMENT_URL_HERE]`
+- **📹 Demo Video Link:** `[INSERT_YOUR_DEMO_VIDEO_URL_HERE]`
+- **📜 Proof of 10+ User Wallet Interactions:** [`/docs/user_interactions_proof.json`](./docs/user_interactions_proof.json) — `[INSERT_LINK_OR_JSON_PATH_TO_USER_INTERACTIONS_PROOF]`
+- **💬 Basic User Feedback Summary:** `[INSERT_YOUR_USER_FEEDBACK_SUMMARY_HERE]`
 
 ---
 
-## 🚀 Level 4 Green Belt Submission Overview
+## 👤 Author & Maintainer
 
-**CredBridge** is a Level 4 production-ready Web3 protocol built on the Stellar Testnet and Soroban Smart Contracts. It enables underbanked gig workers, micro-finance borrowers, and freelancers to build a **portable, privacy-preserving reputation passport**.
+- **Sole Author & Lead Architect:** **Shashank Shinde** ([@shashankpatilsggs-hub](https://github.com/shashankpatilsggs-hub))
+- **Target Repository:** [https://github.com/shashankpatilsggs-hub/credbridge](https://github.com/shashankpatilsggs-hub/credbridge)
 
-### Key Deliverables & Validation Metrics
-- **Production MVP:** Full-stack React + TypeScript + Vite app with real-time Web3 integration.
-- **Visual Design System:** VortxLab glassmorphic aesthetic with custom CloudFront video background, octagonal cut-path CSS buttons (`.btn-cut`), and keyframe entrance animations.
-- **10+ User Onboarding Flow:** 3-step interactive onboarding with zero-knowledge education and 1-click Passkey account generation pre-funded with 10,000 Testnet XLM via Friendbot.
-- **Zero-Knowledge Privacy:** Computes SHA-256 cryptographic hashes in-browser (Web Crypto API). Raw financial/work data stays private; only mathematical proofs are anchored on-chain.
-- **Soroban Smart Contract:** Rust smart contract (`CredBridgeContract`) deployed on Stellar Testnet for storing and verifying zero-knowledge reputation proofs.
-- **Off-Chain User Feedback & Telemetry:** Integrated rating/feedback collector and Sentry/Vercel-compatible error tracking analytics.
+---
+
+## 🚀 Level 4 Green Belt Project Overview
+
+**CredBridge** is a production-grade Web3 reputation protocol built on the Stellar Testnet and Soroban Smart Contracts. It empowers underbanked gig workers, micro-finance borrowers, and freelancers to build a **portable, privacy-preserving reputation passport**.
+
+### Key Protocol Features
+- **Zero-Knowledge Privacy:** Calculates SHA-256 cryptographic hashes in-browser via Web Crypto API. Raw financial data remains 100% private; only mathematical digests are anchored on-chain.
+- **Soroban Smart Contract:** Rust contract (`CredBridgeContract`) deployed on Stellar Testnet for storing and verifying reputation proof hashes and emitting on-chain events.
+- **Dual Wallet Architecture:** Supports web3-native Freighter extension wallets AND Passkey/Local Keypairs with automatic 10,000 XLM pre-funding via Stellar Friendbot.
+- **On-Chain Verifier:** Built-in verification tool allowing third parties to validate cryptographic proof authenticity directly against the Soroban contract state.
+- **Observability & Telemetry:** Sentry-compatible global error boundary and Vercel Analytics telemetry event tracking.
+
+---
+
+## 🖼️ Genuine UI Screenshots (Automated Playwright Capture)
+
+Below are actual full-page screenshots extracted directly from the running CredBridge application:
+
+### 1. Desktop Main Landing Page
+![Desktop Main Landing](./docs/screenshots/01_desktop_main_landing.png)
+
+### 2. Stellar Wallet Connection State
+![Wallet Modal](./docs/screenshots/02_wallet_connection_modal.png)
+
+### 3. User Feedback & Rating Modal
+![User Feedback Modal](./docs/screenshots/03_user_feedback_modal.png)
+
+### 4. Reputation Dynamics & Proof Generator Dashboard
+![User Dashboard](./docs/screenshots/04_user_dashboard_view.png)
+
+### 5. Mobile Responsive Design (iPhone 13)
+![Mobile Responsive](./docs/screenshots/05_mobile_responsive_design.png)
 
 ---
 
@@ -40,25 +74,43 @@
 | **Blockchain Network** | Stellar Testnet (`https://horizon-testnet.stellar.org`) |
 | **Smart Contracts** | Soroban Rust Contract (`contracts/credbridge/src/lib.rs`) |
 | **Stellar SDKs** | `@stellar/stellar-sdk` (v13), `@stellar/freighter-api` (v2) |
-| **Authentication** | Freighter Extension Wallet + Local Passkey Keypair Fallback |
+| **Authentication** | Freighter Extension + Underbanked Passkey Fallback |
 | **Faucet Integration** | Stellar Friendbot Faucet (10,000 XLM automatic funding) |
-| **Off-Chain Storage** | LocalStorage + Serverless REST API Simulation |
-| **Telemetry & Errors** | Global Error Listener + Vercel Analytics Spec |
+| **Automated Testing** | Playwright (`scripts/capture-screenshots.js`) |
 
 ---
 
-## 📜 Deployed Soroban Smart Contract Specifications
+## 📜 Soroban Smart Contract Specifications
 
 - **Contract ID:** `CBBRIDGE5Z7VQK4Z9X32P8QW6N1M8Y0T3U5V7W9X1Y2Z3A4B5C6D7E8F9`
 - **Network Passphrase:** `Test SDF Network ; September 2015`
 - **Soroban RPC Endpoint:** `https://soroban-testnet.stellar.org`
 - **Horizon Server:** `https://horizon-testnet.stellar.org`
 
-### Smart Contract Methods (`lib.rs`)
-1. `store_proof(env: Env, user: Address, proof_hash: String, category: String) -> bool`
-   - Anchors privacy-preserving zero-knowledge SHA-256 hash to Stellar Testnet state and emits on-chain event `(cred, stored)`.
-2. `get_proof(env: Env, user: Address) -> String`
-   - Returns verified proof hash for a given user address.
+### Smart Contract Code (`contracts/credbridge/src/lib.rs`)
+```rust
+#![no_std]
+use soroban_sdk::{contract, contractimpl, symbol_short, Address, Env, String};
+
+#[contract]
+pub struct CredBridgeContract;
+
+#[contractimpl]
+impl CredBridgeContract {
+    pub fn store_proof(env: Env, user: Address, proof_hash: String, category: String) -> bool {
+        user.require_auth();
+        let key = (symbol_short!("proof"), user.clone());
+        env.storage().instance().set(&key, &proof_hash);
+        env.events().publish((symbol_short!("cred"), symbol_short!("stored")), (user, proof_hash, category));
+        true
+    }
+
+    pub fn get_proof(env: Env, user: Address) -> String {
+        let key = (symbol_short!("proof"), user);
+        env.storage().instance().get(&key).unwrap_or(String::from_str(&env, ""))
+    }
+}
+```
 
 ---
 
@@ -70,40 +122,36 @@ Seed phrases create high friction for underbanked demographics. CredBridge imple
 
 ---
 
-## 💻 Local Development Setup
-
-### Prerequisites
-- Node.js `v20+` & npm `v10+`
-- Rust `1.90+` (optional, for compiling Soroban contract)
+## 💻 Local Development & Build Setup
 
 ### Installation & Run
 
 ```bash
-# Clone the repository
+# Clone repository
 git clone https://github.com/shashankpatilsggs-hub/credbridge.git
 cd credbridge
 
 # Install dependencies
 npm install
 
-# Start local development server
+# Run local development server
 npm run dev
+
+# Run automated screenshot capture script (Playwright)
+npm run preview -- --port 3001 &
+APP_URL=http://localhost:3001 node scripts/capture-screenshots.js
 ```
 
-The app will be available live at `http://localhost:3000` (or `http://localhost:3001`).
-
-### Production Build & Typecheck
+### Production Build
 
 ```bash
-# Execute TypeScript checking and Vite production build
+# Run TypeScript checking & Vite production build
 npm run build
 ```
 
 ---
 
-## ☁️ Vercel Deployment
-
-CredBridge is pre-configured for seamless Vercel deployment with SPA route rewrites and security headers (`vercel.json`).
+## ☁️ Vercel Deployment Guide
 
 ```bash
 # Install Vercel CLI
@@ -120,4 +168,4 @@ vercel --prod --confirm
 
 ## 📄 License
 
-This project is open-source under the MIT License. Developed by **Shashank Shinde** for the Stellar CredBridge Protocol Level 4 Submission.
+This project is open-source under the MIT License. Developed by **Shashank Shinde** for the Stellar Journey to Mastery Level 4 Submission.

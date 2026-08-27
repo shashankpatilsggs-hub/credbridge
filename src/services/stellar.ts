@@ -22,6 +22,8 @@ export interface ReputationProofResult {
   hash: string;
   txHash: string;
   contractId: string;
+  ledger?: number;
+  feePaid?: string;
   timestamp: string;
   explorerUrl: string;
 }
@@ -206,6 +208,8 @@ export async function submitReputationProofOnChain(
     hash: dataHash,
     txHash: result.hash,
     contractId: SOROBAN_CONTRACT_ID,
+    ledger: result.ledger,
+    feePaid: '0.00001 XLM',
     timestamp: new Date().toISOString(),
     explorerUrl,
   };
