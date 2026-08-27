@@ -1,14 +1,9 @@
-import { Horizon, Networks, TransactionBuilder, Operation, Keypair, BASE_FEE } from '@stellar/stellar-sdk';
+import { Horizon, TransactionBuilder, Keypair, BASE_FEE, rpc, Contract, nativeToScVal } from '@stellar/stellar-sdk';
 import { isConnected, requestAccess, getPublicKey, signTransaction } from '@stellar/freighter-api';
+import STELLAR_CONFIG from '../config/stellar';
 
-// Environment & Contract Configuration
-export const STELLAR_NETWORK = import.meta.env.VITE_STELLAR_NETWORK || 'TESTNET';
-export const HORIZON_TESTNET_URL = import.meta.env.VITE_HORIZON_URL || 'https://horizon-testnet.stellar.org';
-export const SOROBAN_RPC_URL = import.meta.env.VITE_SOROBAN_RPC_URL || 'https://soroban-testnet.stellar.org';
-export const SOROBAN_CONTRACT_ID = import.meta.env.VITE_CONTRACT_ID || 'CBBRIDGE5Z7VQK4Z9X32P8QW6N1M8Y0T3U5V7W9X1Y2Z3A4B5C6D7E8F9';
-export const STELLAR_NETWORK_PASSPHRASE = Networks.TESTNET;
-
-export const horizonServer = new Horizon.Server(HORIZON_TESTNET_URL);
+export const horizonServer = new Horizon.Server(STELLAR_CONFIG.horizonUrl);
+export const sorobanServer = new rpc.Server(STELLAR_CONFIG.sorobanRpcUrl);
 
 export interface WalletState {
   isConnected: boolean;
@@ -167,49 +162,87 @@ export async function submitReputationProofOnChain(
     }
   }
 
-  // 3. Build Stellar Transaction storing proof via ManageData operation anchored to Soroban Contract ID
+  // 3. Build Soroban Contract Invocation Transaction
+  const contract = new Contract(STELLAR_CONFIG.contractId);
+  const storeProofOp = contract.call('store_proof',
+    nativeToScVal(wallet.publicKey, { type: 'address' }),
+    nativeToScVal(shortenedHash, { type: 'string' }),
+    nativeToScVal('Credential', { type: 'string' })
+  );
+
   const tx = new TransactionBuilder(account, {
     fee: BASE_FEE,
-    networkPassphrase: STELLAR_NETWORK_PASSPHRASE,
+    networkPassphrase: STELLAR_CONFIG.networkPassphrase,
   })
-    .addOperation(
-      Operation.manageData({
-        name: 'CredBridge_Proof',
-        value: shortenedHash,
-      })
-    )
+    .addOperation(storeProofOp)
     .setTimeout(180)
     .build();
 
   let signedTxXdr = '';
 
-  // 4. Sign transaction via Freighter or local Demo keypair
-  if (!wallet.isDemo) {
-    const signed = await signTransaction(tx.toXDR(), {
-      network: 'TESTNET',
-      networkPassphrase: STELLAR_NETWORK_PASSPHRASE,
-    });
-    signedTxXdr = typeof signed === 'string' ? signed : (signed as any).signedTxXdr || (signed as any).xdr;
-  } else {
-    const storedSecret = localStorage.getItem('credbridge_demo_secret');
-    if (!storedSecret) throw new Error('Demo keypair secret missing');
-    const keypair = Keypair.fromSecret(storedSecret);
-    tx.sign(keypair);
-    signedTxXdr = tx.toXDR();
+  // 4. Simulate Transaction (Soroban Requirement)
+  try {
+    const sim = await sorobanServer.simulateTransaction(tx);
+    if (rpc.Api.isSimulationError(sim)) {
+      if (sim.error.includes('HostError') || sim.error.includes('auth')) {
+        throw new Error('Contract logic rejected this action (Auth/HostError)');
+      }
+      throw new Error(`Simulation Failed: ${sim.error}`);
+    }
+
+    // 5. Assemble Transaction
+    const assembledTx = rpc.assembleTransaction(tx, sim).build();
+
+    // 6. Sign transaction via Freighter or local Demo keypair
+    if (!wallet.isDemo) {
+      const signed = await signTransaction(assembledTx.toXDR(), {
+        network: STELLAR_CONFIG.network,
+        networkPassphrase: STELLAR_CONFIG.networkPassphrase,
+      });
+      signedTxXdr = typeof signed === 'string' ? signed : (signed as any).signedTxXdr || (signed as any).xdr;
+    } else {
+      const storedSecret = localStorage.getItem('credbridge_demo_secret');
+      if (!storedSecret) throw new Error('Demo keypair secret missing');
+      const keypair = Keypair.fromSecret(storedSecret);
+      assembledTx.sign(keypair);
+      signedTxXdr = assembledTx.toXDR();
+    }
+  } catch (err: any) {
+    if (err.message.includes('Simulation')) throw err;
+    throw new Error('Failed to assemble or sign transaction: ' + err.message);
   }
 
-  // 5. Submit to Horizon Testnet
-  const submitTx = TransactionBuilder.fromXDR(signedTxXdr, STELLAR_NETWORK_PASSPHRASE);
-  const result = await horizonServer.submitTransaction(submitTx);
+  // 7. Submit to Soroban RPC
+  const submitTx = TransactionBuilder.fromXDR(signedTxXdr, STELLAR_CONFIG.networkPassphrase);
+  const sendResult = await sorobanServer.sendTransaction(submitTx);
+  if (sendResult.status === 'ERROR') {
+    throw new Error('Transaction submission failed');
+  }
 
-  const explorerUrl = `https://stellar.expert/explorer/testnet/tx/${result.hash}`;
+  // 8. Poll for getTransactionStatus until SUCCESS or FAILED
+  let txStatus;
+  let attempts = 0;
+  while (attempts < 20) {
+    txStatus = await sorobanServer.getTransaction(sendResult.hash);
+    if (txStatus.status !== 'NOT_FOUND') {
+      break;
+    }
+    await new Promise(resolve => setTimeout(resolve, 2000));
+    attempts++;
+  }
+
+  if (!txStatus || txStatus.status === 'FAILED') {
+    throw new Error('Transaction failed on-chain');
+  }
+
+  const explorerUrl = `https://stellar.expert/explorer/testnet/tx/${sendResult.hash}`;
 
   return {
     hash: dataHash,
-    txHash: result.hash,
-    contractId: SOROBAN_CONTRACT_ID,
-    ledger: result.ledger,
-    feePaid: '0.00001 XLM',
+    txHash: sendResult.hash,
+    contractId: STELLAR_CONFIG.contractId,
+    ledger: txStatus.latestLedger,
+    feePaid: '0.00001 XLM', // Standard minimum fee placeholder
     timestamp: new Date().toISOString(),
     explorerUrl,
   };

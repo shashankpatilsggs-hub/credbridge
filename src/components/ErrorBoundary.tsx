@@ -1,5 +1,6 @@
 import { Component, ErrorInfo, ReactNode } from 'react';
 import { AlertTriangle, RefreshCw } from 'lucide-react';
+import { analytics } from '../services/analytics';
 
 interface Props {
   children: ReactNode;
@@ -22,6 +23,7 @@ export class ErrorBoundary extends Component<Props, State> {
 
   public componentDidCatch(error: Error, errorInfo: ErrorInfo) {
     console.error('[CredBridge Global Error Boundary caught exception]:', error, errorInfo);
+    analytics.captureException(error, { context: 'ErrorBoundary', errorInfo });
   }
 
   private handleReset = () => {

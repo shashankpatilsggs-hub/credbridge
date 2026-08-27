@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { X, Activity, AlertCircle, CheckCircle2, RefreshCw, BarChart2 } from 'lucide-react';
 import { analytics, AnalyticsEvent, TrackedError } from '../services/analytics';
-import { HORIZON_TESTNET_URL, SOROBAN_CONTRACT_ID } from '../services/stellar';
+import STELLAR_CONFIG from '../config/stellar';
 
 interface TelemetryModalProps {
   isOpen: boolean;
@@ -23,7 +23,7 @@ export function TelemetryModal({ isOpen, onClose }: TelemetryModalProps) {
 
     // Check Horizon Testnet latency
     const start = Date.now();
-    fetch(`${HORIZON_TESTNET_URL}/fee_stats`)
+    fetch(`${STELLAR_CONFIG.horizonUrl}/fee_stats`)
       .then(res => {
         if (res.ok) {
           setLatencyMs(Date.now() - start);
@@ -76,7 +76,7 @@ export function TelemetryModal({ isOpen, onClose }: TelemetryModalProps) {
 
           <div className="p-3.5 rounded-xl bg-white/5 border border-white/10 space-y-1">
             <span className="text-white/50 text-[10px]">SOROBAN CONTRACT</span>
-            <span className="font-mono text-white text-[11px] truncate block">{SOROBAN_CONTRACT_ID.substring(0, 14)}...</span>
+            <span className="font-mono text-white text-[11px] truncate block">{STELLAR_CONFIG.contractId.substring(0, 14)}...</span>
           </div>
 
           <div className="p-3.5 rounded-xl bg-white/5 border border-white/10 space-y-1">

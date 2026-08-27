@@ -2,6 +2,7 @@ import React, { createContext, useContext, useState, useEffect, ReactNode } from
 import { WalletState, connectFreighterWallet, fetchAccountBalance, submitReputationProofOnChain, ReputationProofResult } from '../services/stellar';
 import { analytics, AnalyticsEvent } from '../services/analytics';
 import { submitUserFeedback, FeedbackSubmission, getStoredFeedback } from '../services/feedback';
+import { syncProofToBackend } from '../services/api';
 
 export interface Toast {
   id: string;
@@ -80,8 +81,19 @@ export const CredBridgeProvider: React.FC<{ children: ReactNode }> = ({ children
       setIsOnboardingOpen(true);
     }
 
+    const savedWalletType = localStorage.getItem('credbridge_wallet_type');
     const savedSecret = localStorage.getItem('credbridge_demo_secret');
-    if (savedSecret) {
+    
+    if (savedWalletType === 'freighter') {
+      connectFreighterWallet(false).then(w => {
+        if (w.isConnected) {
+          setWallet(w);
+          analytics.trackEvent('auto_reconnect_freighter', { pubKey: w.publicKey });
+        }
+      }).catch(err => {
+        analytics.captureException(err, { context: 'auto_connect_freighter' });
+      });
+    } else if (savedSecret) {
       connectFreighterWallet(true).then(w => {
         setWallet(w);
         analytics.trackEvent('auto_reconnect_passkey', { pubKey: w.publicKey });
@@ -107,6 +119,7 @@ export const CredBridgeProvider: React.FC<{ children: ReactNode }> = ({ children
     try {
       const w = await connectFreighterWallet(forceDemo);
       setWallet(w);
+      localStorage.setItem('credbridge_wallet_type', w.isDemo ? 'passkey' : 'freighter');
       analytics.trackEvent('wallet_connected', { pubKey: w.publicKey, isDemo: w.isDemo });
       addToast('success', `Connected: ${w.publicKey?.substring(0, 6)}... (${w.network})`);
     } catch (err: any) {
@@ -114,6 +127,7 @@ export const CredBridgeProvider: React.FC<{ children: ReactNode }> = ({ children
       addToast('error', 'Wallet connection failed. Using Passkey mode.');
       const fallback = await connectFreighterWallet(true);
       setWallet(fallback);
+      localStorage.setItem('credbridge_wallet_type', 'passkey');
     }
   };
 
@@ -146,6 +160,12 @@ export const CredBridgeProvider: React.FC<{ children: ReactNode }> = ({ children
       const result = await submitReputationProofOnChain(activeWallet, credentialData);
       addProof(result);
       await refreshBalance();
+      
+      // Phase 4: Sync to Backend/DB
+      if (activeWallet.publicKey) {
+        await syncProofToBackend(result, activeWallet.publicKey);
+      }
+      
       addToast('success', `Proof anchored to Stellar Testnet! Tx: ${result.txHash.substring(0, 8)}...`);
       analytics.trackEvent('reputation_proof_submitted', { txHash: result.hash });
       return result;

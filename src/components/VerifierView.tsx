@@ -1,7 +1,8 @@
 import { useState } from 'react';
 import { ArrowLeft, Search, ShieldCheck, ExternalLink, CheckCircle2, Lock } from 'lucide-react';
 import { useCredBridge } from '../context/CredBridgeContext';
-import { SOROBAN_CONTRACT_ID, computeSHA256 } from '../services/stellar';
+import STELLAR_CONFIG from '../config/stellar';
+import { computeSHA256 } from '../services/stellar';
 
 export function VerifierView() {
   const { setCurrentView, proofs } = useCredBridge();
@@ -26,7 +27,7 @@ export function VerifierView() {
           verified: true,
           hash: match.hash,
           txHash: match.txHash,
-          contractId: SOROBAN_CONTRACT_ID,
+          contractId: STELLAR_CONFIG.contractId,
           timestamp: match.timestamp,
           explorerUrl: match.explorerUrl,
           issuer: 'CredBridge Verified Issuer',
@@ -39,9 +40,9 @@ export function VerifierView() {
           verified: true,
           hash: generatedHash,
           txHash: `0x${generatedHash.substring(0, 32)}`,
-          contractId: SOROBAN_CONTRACT_ID,
+          contractId: STELLAR_CONFIG.contractId,
           timestamp: new Date().toISOString(),
-          explorerUrl: `https://stellar.expert/explorer/testnet/contract/${SOROBAN_CONTRACT_ID}`,
+          explorerUrl: `https://stellar.expert/explorer/testnet/contract/${STELLAR_CONFIG.contractId}`,
           issuer: 'Zero-Knowledge Portable Attestation',
           status: 'VERIFIED_VIA_SOROBAN_CONTRACT',
         });
