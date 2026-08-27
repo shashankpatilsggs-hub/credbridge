@@ -16,7 +16,7 @@
 > [!IMPORTANT]
 > **Manual Submission Links & Artifacts (User Managed):**
 
-- **🌐 Live Vercel Deployment URL:** [https://credbridge-indol.vercel.app](https://credbridge-indol.vercel.app)
+- **🌐 Live Vercel Deployment URL:** [https://credbridge-two.vercel.app/](https://credbridge-two.vercel.app/)
 - **📹 Demo Video Link:** `[INSERT_YOUR_DEMO_VIDEO_URL_HERE]`
 - **📜 Proof of 10+ User Wallet Interactions:** [`/docs/user_interactions_proof.json`](./docs/user_interactions_proof.json) — `[INSERT_LINK_OR_JSON_PATH_TO_USER_INTERACTIONS_PROOF]`
 - **💬 Basic User Feedback Summary:** `[INSERT_YOUR_USER_FEEDBACK_SUMMARY_HERE]`
