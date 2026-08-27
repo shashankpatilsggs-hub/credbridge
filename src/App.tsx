@@ -1,11 +1,12 @@
 import { useState } from 'react';
-import { ArrowRight, HelpCircle, MessageSquare, Search, Wallet as WalletIcon, Menu, X } from 'lucide-react';
+import { ArrowRight, HelpCircle, MessageSquare, Search, Wallet as WalletIcon, Menu, X, Activity } from 'lucide-react';
 import { CredBridgeProvider, useCredBridge } from './context/CredBridgeContext';
 import { WalletModal } from './components/WalletModal';
 import { DashboardView } from './components/DashboardView';
 import { VerifierView } from './components/VerifierView';
 import { OnboardingModal } from './components/OnboardingModal';
 import { FeedbackModal } from './components/FeedbackModal';
+import { TelemetryModal } from './components/TelemetryModal';
 import { ToastContainer } from './components/Toast';
 
 function MainAppContent() {
@@ -20,6 +21,7 @@ function MainAppContent() {
   } = useCredBridge();
 
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [isTelemetryOpen, setIsTelemetryOpen] = useState(false);
 
   const truncatedKey = wallet.publicKey 
     ? `${wallet.publicKey.substring(0, 4)}...${wallet.publicKey.substring(wallet.publicKey.length - 4)}`
@@ -64,8 +66,8 @@ function MainAppContent() {
                 >
                   <g transform="translate(128, 128)">
                     <path d="M 0,-104 A 104 104 0 0 1 104,0 L 24,0 A 24 24 0 0 0 0,-24 Z" opacity="1" />
-                    <path d="M 104,0 A 104 104 0 0 1 0,104 L 0,24 A 24 24 0 0 0 24,0 Z" opacity="0.85" />
-                    <path d="M 0,104 A 104 104 0 0 1 -104,0 L -24,0 A 24 24 0 0 0 0,24 Z" opacity="0.7" />
+                    <path d="M 104,0 A 104 104 0 0 1 0,104 L 0,24 A 24 24 0 0 0 0,-24 Z" opacity="0.85" />
+                    <path d="M 0,104 A 104 104 0 0 1 -104,0 L -24,0 A 24 24 0 0 0 0,-24 Z" opacity="0.7" />
                     <path d="M -104,0 A 104 104 0 0 1 0,-104 L 0,-24 A 24 24 0 0 0 -24,0 Z" opacity="0.9" />
                   </g>
                 </svg>
@@ -93,6 +95,14 @@ function MainAppContent() {
                 >
                   <MessageSquare className="w-3.5 h-3.5" />
                   <span>Feedback</span>
+                </button>
+
+                <button 
+                  onClick={() => setIsTelemetryOpen(true)}
+                  className="flex items-center gap-1.5 px-3 py-2 text-white/80 hover:text-white text-xs transition-colors"
+                >
+                  <Activity className="w-3.5 h-3.5 text-emerald-400" />
+                  <span>Analytics</span>
                 </button>
 
                 <button 
@@ -169,6 +179,14 @@ function MainAppContent() {
                 >
                   <MessageSquare className="w-3.5 h-3.5 text-amber-400" />
                   <span>User Feedback</span>
+                </button>
+
+                <button
+                  onClick={() => { setIsTelemetryOpen(true); setMobileMenuOpen(false); }}
+                  className="w-full text-left py-2 px-3 rounded-lg bg-white/5 hover:bg-white/10 flex items-center gap-2 transition-colors"
+                >
+                  <Activity className="w-3.5 h-3.5 text-emerald-400" />
+                  <span>Analytics & Telemetry</span>
                 </button>
               </div>
             )}
@@ -299,6 +317,7 @@ function MainAppContent() {
         <WalletModal />
         <OnboardingModal />
         <FeedbackModal />
+        <TelemetryModal isOpen={isTelemetryOpen} onClose={() => setIsTelemetryOpen(false)} />
         <ToastContainer />
 
       </div>

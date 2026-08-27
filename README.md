@@ -39,28 +39,28 @@
 - **Soroban Smart Contract:** Rust contract (`CredBridgeContract`) deployed on Stellar Testnet for storing and verifying reputation proof hashes and emitting on-chain events.
 - **Dual Wallet Architecture:** Supports web3-native Freighter extension wallets AND Passkey/Local Keypairs with automatic 10,000 XLM pre-funding via Stellar Friendbot.
 - **On-Chain Verifier:** Built-in verification tool allowing third parties to validate cryptographic proof authenticity directly against the Soroban contract state.
-- **Observability & Telemetry:** Sentry-compatible global error boundary and Vercel Analytics telemetry event tracking.
+- **Observability & Telemetry:** Sentry-compatible global error boundary and Vercel Analytics telemetry event tracking (`TelemetryModal`).
 
 ---
 
 ## 🖼️ Genuine UI Screenshots (Automated Playwright Capture)
 
-Below are actual full-page screenshots extracted directly from the running CredBridge application:
+Below are 5 distinct full-page UI screenshots extracted directly from the running CredBridge application:
 
-### 1. Desktop Main Landing Page
+### 1. Desktop Main Product UI (1920x1080)
 ![Desktop Main Landing](./docs/screenshots/01_desktop_main_landing.png)
 
-### 2. Stellar Wallet Connection State
-![Wallet Modal](./docs/screenshots/02_wallet_connection_modal.png)
+### 2. Mobile Responsive UI (iPhone 13 Pro)
+![Mobile Responsive Design](./docs/screenshots/02_mobile_responsive_design.png)
 
-### 3. User Feedback & Rating Modal
-![User Feedback Modal](./docs/screenshots/03_user_feedback_modal.png)
+### 3. Wallet Interaction State (Freighter & Passkey Modal)
+![Wallet Connection Modal](./docs/screenshots/03_wallet_connection_modal.png)
 
-### 4. Reputation Dynamics & Proof Generator Dashboard
-![User Dashboard](./docs/screenshots/04_user_dashboard_view.png)
+### 4. User Feedback Collection UI (Rating & Comments Form)
+![User Feedback Modal](./docs/screenshots/04_user_feedback_modal.png)
 
-### 5. Mobile Responsive Design (iPhone 13)
-![Mobile Responsive](./docs/screenshots/05_mobile_responsive_design.png)
+### 5. Analytics & System Monitoring Setup (Sentry & Telemetry Logs)
+![Analytics & Monitoring Setup](./docs/screenshots/05_analytics_setup.png)
 
 ---
 
